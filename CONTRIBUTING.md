@@ -71,7 +71,7 @@ The runtime dependencies are deliberately small and well-audited:
 - `argon2-cffi >= 23.1.0` — Argon2id key derivation
 - `cryptography >= 42.0.2` — AES-256-GCM, HMAC, SHA-256
 
-Dev dependencies are `pytest >= 7.0.0` and `pytest-cov >= 4.0.0` (see the `[dev]`
+Dev dependencies are `pytest >= 9.0.3` and `pytest-cov >= 4.0.0` (see the `[dev]`
 extra in `pyproject.toml`).
 
 ## Setting up the project
