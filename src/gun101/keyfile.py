@@ -5,7 +5,9 @@
 import getpass
 import hashlib
 import os
-import subprocess
+
+# Subprocess is used solely to execute icacls with an argument list for Windows ACL enforcement
+import subprocess  # nosec B404
 
 from . import config
 
@@ -93,7 +95,8 @@ def _set_windows_permissions(path: str) -> None:
             f"{username}:(R,W)",
         ]
         try:
-            result = subprocess.run(
+            # icacls is invoked directly with an argument list without a shell for Windows ACL configuration
+            result = subprocess.run(  # nosec B603
                 cmd,
                 capture_output=True,
                 text=True,
