@@ -198,6 +198,52 @@ class TestNegative:
         decrypted = handler.decrypt_file(container, password)
         assert decrypted == data
 
+
+class TestPasswordPolicyConfiguration:
+    """Tests for centralized password policy configuration and validate_password."""
+
+    def test_valid_passwords_pass_validation(self):
+        """Valid passwords should pass validate_password without error."""
+        handler.validate_password(STRONG_PASSWORD)
+        handler.validate_password(STRONG_PASSWORD_2)
+
+    def test_non_string_password_fails(self):
+        """Non-string password should raise ValueError."""
+        with pytest.raises(ValueError, match="Password must be a string"):
+            handler.validate_password(12345)
+        with pytest.raises(ValueError, match="Password must be a string"):
+            handler.validate_password(b"Str0ngP@ssw0rd!")
+
+    def test_minimum_length_configured(self, monkeypatch):
+        """Custom PASSWORD_MIN_LENGTH should be respected by validate_password."""
+        monkeypatch.setattr(config, "PASSWORD_MIN_LENGTH", 6)
+        # 6 characters with upper, lower, digit, special should pass
+        handler.validate_password("Aa1!bc")
+        # 5 characters should fail with updated message
+        with pytest.raises(ValueError, match="Password must be at least 6 characters long"):
+            handler.validate_password("Aa1!b")
+
+    def test_disable_uppercase_requirement(self, monkeypatch):
+        """Disabling PASSWORD_REQUIRE_UPPERCASE allows passwords without uppercase."""
+        monkeypatch.setattr(config, "PASSWORD_REQUIRE_UPPERCASE", False)
+        handler.validate_password(WEAK_PASSWORD_NO_UPPER)
+
+    def test_disable_lowercase_requirement(self, monkeypatch):
+        """Disabling PASSWORD_REQUIRE_LOWERCASE allows passwords without lowercase."""
+        monkeypatch.setattr(config, "PASSWORD_REQUIRE_LOWERCASE", False)
+        handler.validate_password(WEAK_PASSWORD_NO_LOWER)
+
+    def test_disable_digit_requirement(self, monkeypatch):
+        """Disabling PASSWORD_REQUIRE_DIGIT allows passwords without digits."""
+        monkeypatch.setattr(config, "PASSWORD_REQUIRE_DIGIT", False)
+        handler.validate_password(WEAK_PASSWORD_NO_DIGIT)
+
+    def test_disable_special_requirement(self, monkeypatch):
+        """Disabling PASSWORD_REQUIRE_SPECIAL allows passwords without special characters."""
+        monkeypatch.setattr(config, "PASSWORD_REQUIRE_SPECIAL", False)
+        handler.validate_password(WEAK_PASSWORD_NO_SPECIAL)
+
+
 class TestCryptographicProperties:
     """Tests for cryptographic properties like non-determinism."""
 
